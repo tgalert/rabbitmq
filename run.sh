@@ -1,3 +1,3 @@
 #!/bin/bash
 
-go run src/*
+go run src/* -k ~/.kube/config
