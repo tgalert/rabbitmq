@@ -57,7 +57,7 @@ echo -e "\nSuccess"
 
 username=admin
 password=$(cat /dev/urandom | LC_ALL=C tr -d -c 'a-zA-Z0-9' | head -c 32)
-echocln "> Replacing default administrator {guest:guest} with {$username:**********}"
+echocln "> Replacing default admin user {guest:guest} with {$username:**********}"
 
 # Base URL of the RabbitMQ Management HTTP REST API
 base_url="http://$endpoint:15672/api"
@@ -79,3 +79,19 @@ echo "Success"
 #------------------------------------------------------------------------------#
 # Store credentials of new admin user in AWS Secrets Manager
 #------------------------------------------------------------------------------#
+
+echocln "> Saving credentials of new admin user in AWS Secrets Manager"
+env=prod
+
+# Use the default AWS KMS customer master key (CMK) of the AWS account
+# TODO: create a new KMS key just for this application
+arn=$(aws secretsmanager create-secret \
+  --name tgalert/$env/rabbitmq-admin \
+  --description "Credentials of RabbitMQ administrator user." \
+  --secret-string "{\"username\":\"$username\",\"password\":\"$password\"}" \
+  --query ARN | tr -d \")
+
+# To manually delete a secret without a recovery window, use:
+# aws secretsmanager delete-secret --secret-id <NAME> --force-delete-without-recovery
+
+echo "Success: $arn"
