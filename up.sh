@@ -37,8 +37,18 @@ done
 echo -e "\nSuccess: $endpoint"
 
 #------------------------------------------------------------------------------#
-# TODO: store service endpoint somewhere > AWS Systems Manager Parameter Store
+# Save endpoint in AWS Systems Manager Parameter Store
 #------------------------------------------------------------------------------#
+
+param_name=/tgalert/rabbitmq-host
+echocln "> Saving endpoint in AWS Systems Manager Parameter Store"
+aws ssm put-parameter \
+  --name /tgalert/rabbitmq-host \
+  --description "Domain name or IP address of the RabbitMQ service." \
+  --type String  \
+  --value "$endpoint" >/dev/null \
+  --overwrite
+echo "Success: $param_name"
 
 #------------------------------------------------------------------------------#
 # Wait for endpoint DNS resolution
@@ -81,12 +91,11 @@ echo "Success"
 #------------------------------------------------------------------------------#
 
 echocln "> Saving credentials of new admin user in AWS Secrets Manager"
-env=prod
 
 # Use the default AWS KMS customer master key (CMK) of the AWS account
 # TODO: create a new KMS key just for this application
 arn=$(aws secretsmanager create-secret \
-  --name tgalert/$env/rabbitmq-admin \
+  --name tgalert/rabbitmq-admin \
   --description "Credentials of RabbitMQ administrator user." \
   --secret-string "{\"username\":\"$username\",\"password\":\"$password\"}" \
   --query ARN | tr -d \")
