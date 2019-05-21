@@ -40,7 +40,7 @@ echo -e "\nSuccess: $endpoint"
 # Save endpoint in AWS Systems Manager Parameter Store
 #------------------------------------------------------------------------------#
 
-param_name=/tgalert/rabbitmq-host
+param=/tgalert/rabbitmq-host
 echocln "> Saving endpoint in AWS Systems Manager Parameter Store"
 aws ssm put-parameter \
   --name /tgalert/rabbitmq-host \
@@ -48,7 +48,7 @@ aws ssm put-parameter \
   --type String  \
   --value "$endpoint" >/dev/null \
   --overwrite
-echo "Success: $param_name"
+echo "Success: $param"
 
 #------------------------------------------------------------------------------#
 # Wait for endpoint DNS resolution
